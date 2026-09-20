@@ -1,6 +1,10 @@
 server:
   port: 8080
 spring:
+  application:
+    name: accounts
+  profiles:
+    active: prod
   datasource:
     url: jdbc:h2:mem:testdb
     driverClassName: org.h2.Driver
@@ -14,3 +18,20 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+  config:
+    import: "optional:configserver:http://localhost:8071/" #If anything goes wrong with configserver, it won't throw any exception or error during startup (only warning)
+  rabbitmq: #These are default config of rabbit (can be deleted)
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
+#    import: "configserver:http://localhost:8071/" if config server is mandatory
+#Expose all management endpoints (health by default)
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+        #We needed include refresh for refreshing configs without restarting
+        #We also used bus for spring cloud bus

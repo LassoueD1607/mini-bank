@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: configserver
+  profiles:
+    active: git
+  cloud:
+    config:
+      server:
+#        native:
+#          search-locations: "classpath:/config" #Where are our properties are stored
+#          search-locations: "file:///C://workspace//configserver-configs"
+        git:
+          uri: "https://github.com/LassoueD1607/mini-bank-config.git"
+          default-label: main
+          timeout: 5
+          clone-on-start: true #clone the github repo into local system during the startup. (if this is not mentioned, the clone will happen at then the first call of github repo
+          force-pull: true #Tell to override all local changes whenever you try to start or restart your config server. Make sure we are always reading from github repo and not to apply the changes in the local
+          username: LassoueD1607
+          password: ${CONFIG_GIT_TOKEN}
+
+  rabbitmq:
+    host: "localhost"
+    port: 5672
+    username: "guest"
+    password: "guest"
+
+server:
+  port: 8071
+
+encrypt:
+  key: "45D81EC1EF61DF9AD8D3EBBsd21EZ"
