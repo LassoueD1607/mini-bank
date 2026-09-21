@@ -1,0 +1,164 @@
+services:
+  #Each of these services is going to be created inside its own network
+  #To make sure that the intercommunication is working, we need to tag all these microservices under the same network
+  rabbit:
+    image: rabbitmq:3-management
+    hostname: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: rabbitmq-diagnostics check_port_connectivity
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - lassoued
+
+  configserver:
+    image: "lassoued/configserver:3.0.0"
+    container_name: configserver-ms
+    ports:
+      - "8071:8071"
+    depends_on:
+      rabbit:
+        condition: service_healthy
+    #Recommended to define the conditions
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail --silent localhost:8071/actuator/health/readiness | grep -q UP"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          memory: 700m #700mb memory max
+    networks:
+      - lassoued
+    environment:
+      CONFIG_GIT_TOKEN: "${CONFIG_GIT_TOKEN}"
+      GITHUB_WEBHOOK_SECRET: "${GITHUB_WEBHOOK_SECRET}"
+      ENCRYPT_KEY: "${ENCRYPT_KEY}"
+      SPRING_RABBITMQ_HOST: rabbit
+  accountdb:
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+      MYSQL_DATABASE: accountdb
+    ports:
+      - "3305:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - lassoued
+
+  loansdb:
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+      MYSQL_DATABASE: loansdb
+    ports:
+      - "3307:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - lassoued
+
+  cardsdb:
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+      MYSQL_DATABASE: cardsdb
+    ports:
+      - "3308:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - lassoued
+
+  accounts:
+    image: "lassoued/accounts:3.0.0"
+    container_name: accounts-ms
+    ports:
+      - "8080:8080"
+    depends_on:
+     configserver:
+       condition: service_healthy
+     accountdb:
+       condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 700m #700mb memory max
+    networks:
+      - lassoued
+    environment:
+      SPRING_APPLICATION_NAME: "accounts"
+      SPRING_CONFIG_IMPORT: "configserver:http://configserver:8071/"
+      SPRING_PROFILES_ACTIVE: default
+      SPRING_RABBITMQ_HOST: rabbit
+      SPRING_DATASOURCE_URL: "jdbc:mysql://accountdb:3306/accountdb"
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+  loans:
+    image: "lassoued/loans:3.0.0"
+    container_name: loans-ms
+    ports:
+      - "8090:8090"
+    depends_on:
+      configserver:
+        condition: service_healthy
+      loansdb:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 700m
+    networks:
+      - lassoued
+    environment:
+      SPRING_APPLICATION_NAME: "loans"
+      SPRING_CONFIG_IMPORT: "configserver:http://configserver:8071/"
+      SPRING_PROFILES_ACTIVE: default
+      SPRING_RABBITMQ_HOST: rabbit
+      SPRING_DATASOURCE_URL: "jdbc:mysql://loansdb:3306/loansdb"
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+  cards:
+    image: "lassoued/cards:3.0.0"
+    container_name: cards-ms
+    ports:
+      - "9000:9000"
+    depends_on:
+      configserver:
+        condition: service_healthy
+      cardsdb:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 700m
+    networks:
+      - lassoued
+    environment:
+      SPRING_APPLICATION_NAME: "cards"
+      SPRING_CONFIG_IMPORT: "configserver:http://configserver:8071/"
+      SPRING_PROFILES_ACTIVE: default
+      SPRING_RABBITMQ_HOST: rabbit
+      SPRING_DATASOURCE_URL: "jdbc:mysql://cardsdb:3306/cardsdb"
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+
+networks:
+  lassoued:
+    driver: "bridge"

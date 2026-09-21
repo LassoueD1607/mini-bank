@@ -17,6 +17,10 @@ spring:
           force-pull: true #Tell to override all local changes whenever you try to start or restart your config server. Make sure we are always reading from github repo and not to apply the changes in the local
           username: LassoueD1607
           password: ${CONFIG_GIT_TOKEN}
+        monitor:
+          github:
+            webhookSecret: ${GITHUB_WEBHOOK_SECRET}
+
 
   rabbitmq:
     host: "localhost"
@@ -28,4 +32,20 @@ server:
   port: 8071
 
 encrypt:
-  key: "45D81EC1EF61DF9AD8D3EBBsd21EZ"
+  key: ${ENCRYPT_KEY}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*" #Needed for the busrefresh
+  #These are used to expose liveness and readiness used for dependance between config server and other microserver when starting with docker-compose. To let other MS wait for config server
+  health:
+    readiness-state:
+      enabled: true
+    liveness-state:
+      enabled: true
+  endpoint:
+    health:
+      probes:
+        enabled: true
