@@ -1,11 +1,11 @@
-package com.eazybytes.loans.controller;
+package com.lassoued.loans.controller;
 
-import com.eazybytes.loans.constants.LoansConstants;
-import com.eazybytes.loans.dto.ErrorResponseDto;
-import com.eazybytes.loans.dto.LoansContactInfoDto;
-import com.eazybytes.loans.dto.LoansDto;
-import com.eazybytes.loans.dto.ResponseDto;
-import com.eazybytes.loans.service.ILoansService;
+import com.lassoued.loans.constants.LoansConstants;
+import com.lassoued.loans.dto.ErrorResponseDto;
+import com.lassoued.loans.dto.LoansContactInfoDto;
+import com.lassoued.loans.dto.LoansDto;
+import com.lassoued.loans.dto.ResponseDto;
+import com.lassoued.loans.service.ILoansService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;

@@ -1,6 +1,6 @@
-package com.eazybytes.loans.service;
+package com.lassoued.loans.service;
 
-import com.eazybytes.loans.dto.LoansDto;
+import com.lassoued.loans.dto.LoansDto;
 
 public interface ILoansService {
 

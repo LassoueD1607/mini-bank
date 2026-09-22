@@ -1,7 +1,7 @@
-package com.eazybytes.loans.mapper;
+package com.lassoued.loans.mapper;
 
-import com.eazybytes.loans.dto.LoansDto;
-import com.eazybytes.loans.entity.Loans;
+import com.lassoued.loans.dto.LoansDto;
+import com.lassoued.loans.entity.Loans;
 
 public class LoansMapper {
 

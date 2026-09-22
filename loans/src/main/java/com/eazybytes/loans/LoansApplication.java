@@ -1,6 +1,6 @@
-package com.eazybytes.loans;
+package com.lassoued.loans;
 
-import com.eazybytes.loans.dto.LoansContactInfoDto;
+import com.lassoued.loans.dto.LoansContactInfoDto;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Contact;
@@ -12,9 +12,9 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 @SpringBootApplication
-/*@ComponentScans({ @ComponentScan("com.eazybytes.loans.controller") })
-@EnableJpaRepositories("com.eazybytes.loans.repository")
-@EntityScan("com.eazybytes.loans.model")*/
+/*@ComponentScans({ @ComponentScan("com.lassoued.loans.controller") })
+@EnableJpaRepositories("com.lassoued.loans.repository")
+@EntityScan("com.lassoued.loans.model")*/
 @EnableJpaAuditing(auditorAwareRef = "auditAwareImpl")
 @EnableConfigurationProperties(value = {LoansContactInfoDto.class})
 @OpenAPIDefinition(
@@ -24,17 +24,17 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 				version = "v1",
 				contact = @Contact(
 						name = "Madan Reddy",
-						email = "tutor@eazybytes.com",
-						url = "https://www.eazybytes.com"
+						email = "tutor@lassoued.com",
+						url = "https://www.lassoued.com"
 				),
 				license = @License(
 						name = "Apache 2.0",
-						url = "https://www.eazybytes.com"
+						url = "https://www.lassoued.com"
 				)
 		),
 		externalDocs = @ExternalDocumentation(
 				description = "EazyBank Loans microservice REST API Documentation",
-				url = "https://www.eazybytes.com/swagger-ui.html"
+				url = "https://www.lassoued.com/swagger-ui.html"
 		)
 )
 public class LoansApplication {

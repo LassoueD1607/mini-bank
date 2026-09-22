@@ -1,4 +1,4 @@
-package com.eazybytes.loans.dto;
+package com.lassoued.loans.dto;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;

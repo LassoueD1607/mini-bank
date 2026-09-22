@@ -1,13 +1,13 @@
-package com.eazybytes.loans.service.impl;
+package com.lassoued.loans.service.impl;
 
-import com.eazybytes.loans.constants.LoansConstants;
-import com.eazybytes.loans.dto.LoansDto;
-import com.eazybytes.loans.entity.Loans;
-import com.eazybytes.loans.exception.LoanAlreadyExistsException;
-import com.eazybytes.loans.exception.ResourceNotFoundException;
-import com.eazybytes.loans.mapper.LoansMapper;
-import com.eazybytes.loans.repository.LoansRepository;
-import com.eazybytes.loans.service.ILoansService;
+import com.lassoued.loans.constants.LoansConstants;
+import com.lassoued.loans.dto.LoansDto;
+import com.lassoued.loans.entity.Loans;
+import com.lassoued.loans.exception.LoanAlreadyExistsException;
+import com.lassoued.loans.exception.ResourceNotFoundException;
+import com.lassoued.loans.mapper.LoansMapper;
+import com.lassoued.loans.repository.LoansRepository;
+import com.lassoued.loans.service.ILoansService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 

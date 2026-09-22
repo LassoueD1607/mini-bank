@@ -16,7 +16,7 @@ services:
       - lassoued
 
   configserver:
-    image: "lassoued/configserver:2.0.0"
+    image: "lassoued/configserver:4.0.0"
     container_name: configserver-ms
     ports:
       - "8071:8071"
@@ -86,8 +86,32 @@ services:
     networks:
       - lassoued
 
+  eurekaserver:
+    image: "lassoued/eurekaserver:4.0.0"
+    container_name: eurekaserver-ms
+    ports:
+      - "8070:8070"
+    depends_on:
+      configserver:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail --silent localhost:8070/actuator/health/readiness | grep -q UP"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          memory: 700m
+    networks:
+      - lassoued
+    environment:
+      SPRING_APPLICATION_NAME: "eurekaserver"
+      SPRING_CONFIG_IMPORT: "configserver:http://configserver:8071/"
+
   accounts:
-    image: "lassoued/accounts:2.0.0"
+    image: "lassoued/accounts:4.0.0"
     container_name: accounts-ms
     ports:
       - "8080:8080"
@@ -95,6 +119,8 @@ services:
      configserver:
        condition: service_healthy
      accountdb:
+       condition: service_healthy
+     eurekaserver:
        condition: service_healthy
     deploy:
       resources:
@@ -110,8 +136,9 @@ services:
       SPRING_DATASOURCE_URL: "jdbc:mysql://accountdb:3306/accountdb"
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "http://eurekaserver:8070/eureka/"
   loans:
-    image: "lassoued/loans:2.0.0"
+    image: "lassoued/loans:4.0.0"
     container_name: loans-ms
     ports:
       - "8090:8090"
@@ -119,6 +146,8 @@ services:
       configserver:
         condition: service_healthy
       loansdb:
+        condition: service_healthy
+      eurekaserver:
         condition: service_healthy
     deploy:
       resources:
@@ -134,8 +163,9 @@ services:
       SPRING_DATASOURCE_URL: "jdbc:mysql://loansdb:3306/loansdb"
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "http://eurekaserver:8070/eureka/"
   cards:
-    image: "lassoued/cards:2.0.0"
+    image: "lassoued/cards:4.0.0"
     container_name: cards-ms
     ports:
       - "9000:9000"
@@ -143,6 +173,8 @@ services:
       configserver:
         condition: service_healthy
       cardsdb:
+        condition: service_healthy
+      eurekaserver:
         condition: service_healthy
     deploy:
       resources:
@@ -158,6 +190,7 @@ services:
       SPRING_DATASOURCE_URL: "jdbc:mysql://cardsdb:3306/cardsdb"
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "http://eurekaserver:8070/eureka/"
 
 networks:
   lassoued:
