@@ -1,0 +1,36 @@
+server:
+  port: 8072
+spring:
+  application:
+    name: gatewayserver
+  config:
+    import: "optional:configserver:http://localhost:8071/"
+  cloud:
+    gateway:
+      server:
+        webflux:
+          discovery:
+            locator:
+              enabled: false #Disable default routes
+              lowerCaseServiceId: true
+
+#    import: "configserver:http://localhost:8071/" if config server is mandatory
+#Expose all management endpoints (health by default)
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    gateway:
+      access: unrestricted
+  info:
+    env:
+      enabled: true
+
+#These will be displayed in eureka UI
+info:
+  app:
+    name: "gatewayserver"
+    description: "Lassoued Bank Gateway Server Application"
+    version: "1.0.0"
