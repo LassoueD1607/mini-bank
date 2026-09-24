@@ -78,7 +78,7 @@
                 <version>3.3.2</version>
                 <configuration>
                     <to>
-                        <image>lassoued/${project.artifactId}:4.0.0</image>
+                        <image>lassoued/${project.artifactId}:5.0.0</image>
                     </to>
                 </configuration>
             </plugin>

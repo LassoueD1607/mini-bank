@@ -22,6 +22,10 @@ spring:
     port: 5672
     username: guest
     password: guest
+  cloud:
+    openfeign:
+      circuitbreaker:
+        enabled: true
 
 #    import: "configserver:http://localhost:8071/" if config server is mandatory
 #Expose all management endpoints (health by default)
@@ -30,7 +34,16 @@ management:
     web:
       exposure:
         include: "*"
+  #These are used to expose liveness and readiness used for dependance between config server and other microserver when starting with docker-compose. To let other MS wait for config server
+  health:
+    readiness-state:
+      enabled: true
+    liveness-state:
+      enabled: true
   endpoint:
+    health:
+      probes:
+        enabled: true
     shutdown:
       access: unrestricted #instead of shutdown enabled
     #We needed include refresh for refreshing configs without restarting
@@ -52,3 +65,23 @@ info:
     name: "accounts"
     description: "Lassoued Bank Accounts Application"
     version: "1.0.0"
+
+resilience4j.circuitbreaker:
+  configs:
+    default:
+      slidingWindowSize: 10 #How many requests it has initially monitor before it tried to change the status from closed to open
+      permittedNumberOfCallsInHalfOpenState: 2 #Based on these requests (2 requests in our case), it can decide whether to go back to the open state or move to the closed state
+      failureRateThreshold: 50 #if at lease 50% percent of my requests are failed then my circuit breaker pattern have to move to the open state
+      waitDurationInOpenState: 10000 #10s to move to the half open state
+
+resilience4j.retry:
+  configs:
+    default:
+      maxAttempts: 3
+      waitDuration: 500
+      enableExponentialBackoff: true
+      exponentialBackoffMultiplier: 2
+#      ignoreExceptions:
+#        - java.lang.NullPointerException
+#      retryExceptions:
+#        - java.util.concurrent.TimeoutException //works only with these exceptions

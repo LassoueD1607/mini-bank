@@ -61,6 +61,11 @@
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
         </dependency>
+<!--        Since application.yml is not builded on top of Spring reactor, don't use the reactor dependency-->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-circuitbreaker-resilience4j</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-openfeign</artifactId>
@@ -145,7 +150,7 @@
                 <version>3.3.2</version>
                 <configuration>
                     <to>
-                        <image>lassoued/${project.artifactId}:4.0.0</image>
+                        <image>lassoued/${project.artifactId}:5.0.0</image>
                     </to>
                 </configuration>
             </plugin>

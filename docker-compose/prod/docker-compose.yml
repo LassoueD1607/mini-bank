@@ -122,6 +122,12 @@ services:
        condition: service_healthy
      eurekaserver:
        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail --silent localhost:8080/actuator/health | grep -q UP"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
     deploy:
       resources:
         limits:
@@ -149,6 +155,12 @@ services:
         condition: service_healthy
       eurekaserver:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail --silent localhost:8090/actuator/health | grep -q UP"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
     deploy:
       resources:
         limits:
@@ -176,6 +188,12 @@ services:
         condition: service_healthy
       eurekaserver:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail --silent localhost:9000/actuator/health | grep -q UP"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
     deploy:
       resources:
         limits:
@@ -190,6 +208,39 @@ services:
       SPRING_DATASOURCE_URL: "jdbc:mysql://cardsdb:3306/cardsdb"
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "http://eurekaserver:8070/eureka/"
+
+  gatewayserver:
+    image: "lassoued/gatewayserver:4.0.0"
+    container_name: gatewayserver-ms
+    ports:
+      - "8072:8072"
+    depends_on:
+      configserver:
+        condition: service_healthy
+      eurekaserver:
+        condition: service_healthy
+      accounts:
+        condition: service_healthy
+      loans:
+        condition: service_healthy
+      cards:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail --silent localhost:8072/actuator/health | grep -q UP"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          memory: 700m
+    networks:
+      - lassoued
+    environment:
+      SPRING_APPLICATION_NAME: "gatewayserver"
+      SPRING_CONFIG_IMPORT: "configserver:http://configserver:8071/"
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "http://eurekaserver:8070/eureka/"
 
 networks:

@@ -13,6 +13,9 @@ spring:
             locator:
               enabled: false #Disable default routes
               lowerCaseServiceId: true
+          httpclient:
+            connect-timeout: 1000
+            response-timeout: 5s
 
 #    import: "configserver:http://localhost:8071/" if config server is mandatory
 #Expose all management endpoints (health by default)
@@ -34,3 +37,17 @@ info:
     name: "gatewayserver"
     description: "Lassoued Bank Gateway Server Application"
     version: "1.0.0"
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        slidingWindowSize: 10 #How many requests it has initially monitor before it tried to change the status from closed to open
+        permittedNumberOfCallsInHalfOpenState: 2 #Based on these requests (2 requests in our case), it can decide whether to go back to the open state or move to the closed state
+        failureRateThreshold: 50 #if at lease 50% percent of my requests are failed then my circuit breaker pattern have to move to the open state
+        waitDurationInOpenState: 10000 #10s to move to the half open state
+
+  timelimiter:
+    configs:
+      default:
+        timeoutDuration: 4s #without this, resilience4j defaults to 1s, which trips the circuit breaker on slow/cold-start calls before the gateway's own 5s httpclient response-timeout ever gets a chance
