@@ -1,10 +1,24 @@
+# ============================================================
+# SERVER
+# ============================================================
 server:
   port: 8080
+
+# ============================================================
+# SPRING
+# ============================================================
 spring:
   application:
     name: accounts
   profiles:
     active: prod
+
+  # --- Config server import ---
+  config:
+    import: "optional:configserver:http://localhost:8071/" #If anything goes wrong with configserver, it won't throw any exception or error during startup (only warning)
+#    import: "configserver:http://localhost:8071/" if config server is mandatory
+
+  # --- Database ---
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/accountsdb}
     driverClassName: com.mysql.cj.jdbc.Driver
@@ -15,19 +29,44 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
-  config:
-    import: "optional:configserver:http://localhost:8071/" #If anything goes wrong with configserver, it won't throw any exception or error during startup (only warning)
+
+  # --- Messaging (RabbitMQ / Spring Cloud Bus) ---
   rabbitmq: #These are default config of rabbit (can be deleted)
     host: localhost
     port: 5672
     username: guest
     password: guest
+
+  # --- OpenFeign ---
   cloud:
     openfeign:
       circuitbreaker:
         enabled: true
 
-#    import: "configserver:http://localhost:8071/" if config server is mandatory
+# ============================================================
+# FEIGN
+# ============================================================
+feign:
+  client:
+    config:
+      default:
+        retryer: feign.Retryer$Default #retries on connection-level failures only (never on 4xx/5xx business errors), safe for the read-only fetchLoanDetails/fetchCardDetails calls
+
+# ============================================================
+# EUREKA (service discovery)
+# ============================================================
+eureka:
+  instance:
+    preferIpAddress: true #to use ip address
+  client:
+    fetchRegistry: true
+    registerWithEureka: true
+    serviceUrl:
+      defaultZone: http://localhost:8070/eureka/
+
+# ============================================================
+# MANAGEMENT / ACTUATOR
+# ============================================================
 #Expose all management endpoints (health by default)
 management:
   endpoints:
@@ -51,21 +90,19 @@ management:
   info:
     env:
       enabled: true
-eureka:
-  instance:
-    preferIpAddress: true #to use ip address
-  client:
-    fetchRegistry: true
-    registerWithEureka: true
-    serviceUrl:
-      defaultZone: http://localhost:8070/eureka/
-#These will be displayed in eureka UI
+
+# ============================================================
+# INFO (displayed in Eureka UI)
+# ============================================================
 info:
   app:
     name: "accounts"
     description: "Lassoued Bank Accounts Application"
     version: "1.0.0"
 
+# ============================================================
+# RESILIENCE4J
+# ============================================================
 resilience4j.circuitbreaker:
   configs:
     default:
@@ -73,6 +110,11 @@ resilience4j.circuitbreaker:
       permittedNumberOfCallsInHalfOpenState: 2 #Based on these requests (2 requests in our case), it can decide whether to go back to the open state or move to the closed state
       failureRateThreshold: 50 #if at lease 50% percent of my requests are failed then my circuit breaker pattern have to move to the open state
       waitDurationInOpenState: 10000 #10s to move to the half open state
+
+resilience4j.timelimiter:
+  configs:
+    default:
+      timeoutDuration: 4s #without this, resilience4j defaults to 1s, which would trip the loans/cards Feign circuit breakers on any call that's briefly slow (e.g. cold start)
 
 resilience4j.retry:
   configs:

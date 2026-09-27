@@ -1,8 +1,19 @@
+# ============================================================
+# SERVER
+# ============================================================
+server:
+  port: 8071
+
+# ============================================================
+# SPRING
+# ============================================================
 spring:
   application:
     name: configserver
   profiles:
     active: git
+
+  # --- Config Server (git-backed) ---
   cloud:
     config:
       server:
@@ -21,19 +32,22 @@ spring:
           github:
             webhookSecret: ${GITHUB_WEBHOOK_SECRET}
 
-
+  # --- Messaging (RabbitMQ / Spring Cloud Bus) ---
   rabbitmq:
     host: "localhost"
     port: 5672
     username: "guest"
     password: "guest"
 
-server:
-  port: 8071
-
+# ============================================================
+# ENCRYPTION
+# ============================================================
 encrypt:
   key: ${ENCRYPT_KEY}
 
+# ============================================================
+# MANAGEMENT / ACTUATOR
+# ============================================================
 management:
   endpoints:
     web:

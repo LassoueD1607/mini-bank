@@ -1,10 +1,22 @@
+# ============================================================
+# SERVER
+# ============================================================
 server:
   port: 8072
+
+# ============================================================
+# SPRING
+# ============================================================
 spring:
   application:
     name: gatewayserver
+
+  # --- Config server import ---
   config:
     import: "optional:configserver:http://localhost:8071/"
+#    import: "configserver:http://localhost:8071/" if config server is mandatory
+
+  # --- Gateway routing / HTTP client ---
   cloud:
     gateway:
       server:
@@ -17,7 +29,9 @@ spring:
             connect-timeout: 1000
             response-timeout: 5s
 
-#    import: "configserver:http://localhost:8071/" if config server is mandatory
+# ============================================================
+# MANAGEMENT / ACTUATOR
+# ============================================================
 #Expose all management endpoints (health by default)
 management:
   endpoints:
@@ -31,13 +45,18 @@ management:
     env:
       enabled: true
 
-#These will be displayed in eureka UI
+# ============================================================
+# INFO (displayed in Eureka UI)
+# ============================================================
 info:
   app:
     name: "gatewayserver"
     description: "Lassoued Bank Gateway Server Application"
     version: "1.0.0"
 
+# ============================================================
+# RESILIENCE4J
+# ============================================================
 resilience4j:
   circuitbreaker:
     configs:

@@ -1,10 +1,23 @@
+# ============================================================
+# SERVER
+# ============================================================
 server:
   port: 9000
+
+# ============================================================
+# SPRING
+# ============================================================
 spring:
   application:
     name: cards
   profiles:
     active: prod
+
+  # --- Config server import ---
+  config:
+    import: "optional:configserver:http://localhost:8071/" #If anything goes wrong with configserver, it won't throw any exception or error during startup (only warning)
+
+  # --- Database ---
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/cardsdb}
     driverClassName: com.mysql.cj.jdbc.Driver
@@ -15,14 +28,29 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
-  config:
-    import: "optional:configserver:http://localhost:8071/" #If anything goes wrong with configserver, it won't throw any exception or error during startup (only warning)
+
+  # --- Messaging (RabbitMQ / Spring Cloud Bus) ---
   rabbitmq:
     host: localhost
     port: 5672
     username: guest
     password: guest
 
+# ============================================================
+# EUREKA (service discovery)
+# ============================================================
+eureka:
+  instance:
+    preferIpAddress: true #to use ip address
+  client:
+    fetchRegistry: true
+    registerWithEureka: true
+    serviceUrl:
+      defaultZone: http://localhost:8070/eureka/
+
+# ============================================================
+# MANAGEMENT / ACTUATOR
+# ============================================================
 management:
   endpoints:
     web:
@@ -44,17 +72,11 @@ management:
   info:
     env:
       enabled: true
-eureka:
-  instance:
-    preferIpAddress: true #to use ip address
-  client:
-    fetchRegistry: true
-    registerWithEureka: true
-    serviceUrl:
-      defaultZone: http://localhost:8070/eureka/
-#These will be displayed in eureka UI
+
+# ============================================================
+# INFO (displayed in Eureka UI)
+# ============================================================
 info:
   app:
     name: "cards"
     description: "Lassoued Bank Cards Application"
-

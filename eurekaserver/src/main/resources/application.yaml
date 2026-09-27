@@ -1,12 +1,23 @@
+# ============================================================
+# SERVER
+# ============================================================
 server:
   port: 8070 #overridden with the same value by mini-bank-config, kept here for readability
 
+# ============================================================
+# SPRING
+# ============================================================
 spring:
   application:
     name: eurekaserver
+
+  # --- Config server import ---
   config:
     import: "optional:configserver:http://localhost:8071/"
 
+# ============================================================
+# MANAGEMENT / ACTUATOR
+# ============================================================
 management:
   endpoints:
     web:
